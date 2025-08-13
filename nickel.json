@@ -1,0 +1,15 @@
+{
+  "UniqueName": "YourNameHere.BaseMod",
+  "Version": "0.0.0",
+  "Author": "rft50/JyGein",
+  "Description": "A gutted demo mod.",
+  "RequiredApiVersion": "1.5.7",
+  "EntryPointAssembly": "BaseMod.dll",
+  "LoadPhase": "AfterDbInit",
+  "Dependencies": [
+    {
+      "UniqueName": "Shockah.Kokoro",
+      "Version": "1.12.1"
+    }
+  ]
+}

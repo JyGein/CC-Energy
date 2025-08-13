@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<RootNamespace>BaseMod</RootNamespace>
+		<Version>0.2.0</Version>
+		<IncludedModProjectPaths>i18n;assets</IncludedModProjectPaths>
+
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>12.0</LangVersion>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<WarningsAsErrors>Nullable</WarningsAsErrors>
+		<!--
+		<ModLoaderPath>$(MSBuildProjectDirectory)\..\..\..\..\..\..\Games\Nickel</ModLoaderPath>
+		<ModZipPath>$(MSBuildProjectDirectory)\.release\$(MSBuildProjectName)-$(Version).zip</ModZipPath>
+		<GameDllPath>$(MSBuildProjectDirectory)\..\..\..\Decompiled\CobaltCore.dll</GameDllPath>
+		-->
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Nickel.ModBuildConfig" Version="2.0.2" />
+		<PackageReference Include="EnumByNameSourceGenerator" Version="1.1.2" PrivateAssets="all" ExcludeAssets="runtime">
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Actions\" />
+	  <Folder Include="Artifacts\" />
+	  <Folder Include="assets\Animation\" />
+	  <Folder Include="assets\Artifact\" />
+	  <Folder Include="Cards\" />
+	  <Folder Include="Features\" />
+	</ItemGroup>
+</Project>
