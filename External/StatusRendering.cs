@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BaseMod.External;
+namespace CCEnergy.External;
 
 public partial interface IKokoroApi
 {

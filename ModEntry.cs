@@ -6,19 +6,24 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using BaseMod.External;
+using CCEnergy.External;
+using CCEnergy.Energies;
+using CCEnergy.Cards;
 
-namespace BaseMod;
+namespace CCEnergy;
 
 internal class ModEntry : SimpleMod
 {
     internal static ModEntry Instance { get; private set; } = null!;
+    internal static EnergyApi EnergyApi { get; private set; } = null!;
+    internal readonly static List<EnergyInfo> Energies = [new RevengeEnergy(), new CalmEnergy(), new ThermalEnergy()];
     internal Harmony Harmony;
     internal IKokoroApi.IV2 KokoroApi;
     internal ILocalizationProvider<IReadOnlyList<string>> AnyLocalizations { get; }
     internal ILocaleBoundNonNullLocalizationProvider<IReadOnlyList<string>> Localizations { get; }
 
     private static readonly List<Type> BaseCommonCardTypes = [
+        typeof(TestCard)
     ];
     private static readonly List<Type> BaseUncommonCardTypes = [
     ];
@@ -43,11 +48,14 @@ internal class ModEntry : SimpleMod
     private static readonly IEnumerable<Type> AllRegisterableTypes =
         BaseCardTypes
             .Concat(BaseArtifactTypes);
+    internal ISpriteEntry CardEnergyBGExtension { get; }
+    internal ISpriteEntry CombatMiniEnergy { get; }
+    internal ISpriteEntry GenericEnergyIcon { get; }
 
     public ModEntry(IPluginPackage<IModManifest> package, IModHelper helper, ILogger logger) : base(package, helper, logger)
     {
-        Instance = this;
-        Harmony = new Harmony("YourNameHere.BaseMod");
+        Instance = this;EnergyApi = new();
+        Harmony = new Harmony("JyGein.Energy");
         
         //You're probably gonna use kokoro
         KokoroApi = helper.ModRegistry.GetApi<IKokoroApi>("Shockah.Kokoro")!.V2;
@@ -60,9 +68,17 @@ internal class ModEntry : SimpleMod
             new CurrentLocaleOrEnglishLocalizationProvider<IReadOnlyList<string>>(AnyLocalizations)
         );
 
+        CardEnergyBGExtension = helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/Card/cardEnergyBG.png"));
+        CombatMiniEnergy = helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/Combat/mini_energy.png"));
+        GenericEnergyIcon = helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/icons/grayscale_energy.png"));
+
         foreach (var type in AllRegisterableTypes)
             AccessTools.DeclaredMethod(type, nameof(IRegisterable.Register))?.Invoke(null, [package, helper]);
+
+        _ = new Patches(Harmony);
     }
+
+    public override object GetApi(IModManifest requestingMod) => EnergyApi;
     
     public static ISpriteEntry RegisterSprite(IPluginPackage<IModManifest> package, string dir)
     {

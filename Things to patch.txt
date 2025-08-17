@@ -1,0 +1,15 @@
+AAfterPlayerTurn.Begin - set all energies to 0
+AStartPlayerTurn.Begin - add all energies' turn energy
+Card.Render - Render the energy number(s)
+Add an energy action
+Combat.Make - set energys
+Combat.TryPlayCard - take the new energies into account
+Combat.RenderCards - hilight stuff while hovering end turn
+Combat.RenderEnergy - obvious
+Combat.RenderEndTurn - logic on whether the end turn text is grayed out
+
+
+add icons for the amoddedenergy action
+test the api
+
+thermal energy

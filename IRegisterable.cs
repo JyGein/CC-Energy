@@ -1,7 +1,7 @@
 ﻿using Nanoray.PluginManager;
 using Nickel;
 
-namespace BaseMod;
+namespace CCEnergy;
 
 internal interface IRegisterable
 {

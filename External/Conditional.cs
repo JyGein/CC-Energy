@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace BaseMod.External;
+namespace CCEnergy.External;
 
 public partial interface IKokoroApi
 {

@@ -1,6 +1,6 @@
 ﻿using Nanoray.EnumByNameSourceGenerator;
 
-namespace BaseMod;
+namespace CCEnergy;
 
 /*
  * Enumeration (enum) types in C# are internally stored as numbers.
@@ -9,3 +9,5 @@ namespace BaseMod;
  */
 [EnumByName(typeof(Spr))]
 internal static partial class StableSpr { }
+[EnumByName(typeof(UK))]
+internal static partial class StableUK { }

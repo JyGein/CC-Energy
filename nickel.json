@@ -1,10 +1,10 @@
 {
-  "UniqueName": "YourNameHere.BaseMod",
-  "Version": "0.0.0",
-  "Author": "rft50/JyGein",
-  "Description": "A gutted demo mod.",
+  "UniqueName": "JyGein.Energy",
+  "Version": "0.1.0",
+  "Author": "JyGein",
+  "Description": "Adds new types of energy to the game.",
   "RequiredApiVersion": "1.5.7",
-  "EntryPointAssembly": "BaseMod.dll",
+  "EntryPointAssembly": "CC-Energy.dll",
   "LoadPhase": "AfterDbInit",
   "Dependencies": [
     {

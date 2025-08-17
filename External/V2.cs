@@ -1,4 +1,4 @@
-﻿namespace BaseMod.External;
+﻿namespace CCEnergy.External;
 
 /// <summary>
 /// Allows accessing all of Kokoro library APIs.
