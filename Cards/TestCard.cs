@@ -34,7 +34,7 @@ internal sealed class TestCard : Card, IRegisterable, ISetModdedEnergyCostBaseHo
         ModEntry.EnergyApi.SetModdedEnergyCostBaseHook(this, this);
     }
 
-    public Dictionary<Energy, int> GetModdedEnergyCostBase(State s)
+    public IDictionary<Energy, int> GetModdedEnergyCostBase(State s)
     {
         return new Dictionary<Energy, int>()
         {

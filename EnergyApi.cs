@@ -12,7 +12,8 @@ public class EnergyApi : IEnergyApi
 {
     readonly Dictionary<Card, ISetModdedEnergyCostBaseHook> ModdedEnergyBaseCostHooks = [];
     readonly List<IModdedEnergyCostOverrideHook> ModdedEnergyCostOverrideHooks = [];
-    public void SetModdedEnergyCostBase(Card card, Dictionary<Energy, int> energyBlock)
+    readonly List<IModdedTurnEnergyOverrideHook> ModdedTurnEnergyOverrideHooks = [];
+    public void SetModdedEnergyCostBase(Card card, IDictionary<Energy, int> energyBlock)
     {
         SetModdedEnergyCostBaseHook(card, new DefaultSetModdedEnergyCostBaseHook { BaseModdedEnergyCost = energyBlock });
     }
@@ -22,18 +23,18 @@ public class EnergyApi : IEnergyApi
         ModdedEnergyBaseCostHooks[card] = hook;
     }
 
-    public Dictionary<Energy, int> GetModdedEnergyBaseCost(Card card, State s)
+    public IDictionary<Energy, int> GetModdedEnergyBaseCost(Card card, State s)
     {
-        return ModdedEnergyBaseCostHooks.TryGetValue(card, out ISetModdedEnergyCostBaseHook? hook) ? hook.GetModdedEnergyCostBase(s) : [];
+        return ModdedEnergyBaseCostHooks.TryGetValue(card, out ISetModdedEnergyCostBaseHook? hook) ? hook.GetModdedEnergyCostBase(s) : new Dictionary<Energy, int>();
     }
 
-    public Dictionary<Energy, int> GetModdedEnergyCost(Card card, State s)
+    public IDictionary<Energy, int> GetModdedEnergyCost(Card card, State s)
     {
         Dictionary<Energy, int> cost = [];
         if (ModdedEnergyBaseCostHooks.TryGetValue(card, out ISetModdedEnergyCostBaseHook? hook)) {
-            cost = hook.GetModdedEnergyCostBase(s);
+            cost = hook.GetModdedEnergyCostBase(s).ToDictionary();
         }
-        Dictionary<Energy, int> discounts = GetCardModdedEnergyDiscounts(card);
+        Dictionary<Energy, int> discounts = GetCardModdedEnergyDiscounts(card).ToDictionary();
         foreach (Energy energy in discounts.Keys)
         {
             if (cost.ContainsKey(energy))
@@ -44,7 +45,7 @@ public class EnergyApi : IEnergyApi
         }
         foreach (IModdedEnergyCostOverrideHook moddedEnergyCostOverrideHook in ModdedEnergyCostOverrideHooks)
         {
-            cost = moddedEnergyCostOverrideHook.GetModdedEnergyCostOveridden(card, s, cost);
+            cost = moddedEnergyCostOverrideHook.GetModdedEnergyCostOveridden(card, s, cost).ToDictionary();
         }
         return cost;
     }
@@ -56,12 +57,12 @@ public class EnergyApi : IEnergyApi
         card.SetModdedEnergyDiscount(currentDiscount);
     }
 
-    public void SetCardModdedEnergyDiscount(Card card, Dictionary<Energy, int> discountEnergyBlock)
+    public void SetCardModdedEnergyDiscount(Card card, IDictionary<Energy, int> discountEnergyBlock)
     {
-        card.SetModdedEnergyDiscount(discountEnergyBlock);
+        card.SetModdedEnergyDiscount(discountEnergyBlock.ToDictionary());
     }
 
-    public Dictionary<Energy, int> GetCardModdedEnergyDiscounts(Card card)
+    public IDictionary<Energy, int> GetCardModdedEnergyDiscounts(Card card)
         => card.GetModdedEnergyDiscount();
 
     public void RegisterModdedEnergyCostOverrideHook(IModdedEnergyCostOverrideHook hook)
@@ -76,12 +77,12 @@ public class EnergyApi : IEnergyApi
 
     public IAModdedEnergy AModdedEnergy => new AModdedEnergy();
 
-    public void SetCombatModdedEnergy(Combat c, Dictionary<Energy, int> energyBlock)
+    public void SetCombatModdedEnergy(Combat c, IDictionary<Energy, int> energyBlock)
     {
-        c.SetEnergy(energyBlock);
+        c.SetEnergy(energyBlock.ToDictionary());
     }
 
-    public Dictionary<Energy, int> GetCombatModdedEnergy(Combat c)
+    public IDictionary<Energy, int> GetCombatModdedEnergy(Combat c)
     {
         return c.GetEnergy();
     }
@@ -89,9 +90,9 @@ public class EnergyApi : IEnergyApi
     public List<Energy> GetInUseEnergies(Combat c, State s)
     {
         List<Energy> inUseEnergy = [];
-        foreach(Card card in s.deck.Concat(c.hand).Concat(c.discard))
+        foreach(Card card in s.deck.Concat(c.hand).Concat(c.discard).Concat(c.exhausted))
         {
-            Dictionary<Energy, int> cardCost = GetModdedEnergyCost(card, s);
+            Dictionary<Energy, int> cardCost = GetModdedEnergyCost(card, s).ToDictionary();
             foreach (Energy energy in cardCost.Keys)
             {
                 if (cardCost[energy] > 0 && !inUseEnergy.Contains(energy)) inUseEnergy.Add(energy);
@@ -100,11 +101,30 @@ public class EnergyApi : IEnergyApi
         inUseEnergy.Sort();
         return inUseEnergy;
     }
+
+    public void RegisterModdedTurnEnergyOverrideHook(IModdedTurnEnergyOverrideHook hook)
+    {
+        ModdedTurnEnergyOverrideHooks.Add(hook);
+    }
+
+    public void UnregisterModdedTurnEnergyOverrideHook(IModdedTurnEnergyOverrideHook hook)
+    {
+        ModdedTurnEnergyOverrideHooks.Remove(hook);
+    }
+
+    public IDictionary<Energy, int> GetOverriddenTurnEnergy(Combat c, State s, IDictionary<Energy, int> energyBlock)
+    {
+        foreach (IModdedTurnEnergyOverrideHook hook in ModdedTurnEnergyOverrideHooks)
+        {
+            energyBlock = hook.GetModdedEnergyCostOveridden(c, s, energyBlock);
+        }
+        return energyBlock;
+    }
 }
 
 internal sealed class DefaultSetModdedEnergyCostBaseHook : ISetModdedEnergyCostBaseHook
 {
-    public required Dictionary<Energy, int> BaseModdedEnergyCost;
-    public Dictionary<Energy, int> GetModdedEnergyCostBase(State s)
+    public required IDictionary<Energy, int> BaseModdedEnergyCost;
+    public IDictionary<Energy, int> GetModdedEnergyCostBase(State s)
         => BaseModdedEnergyCost;
 }

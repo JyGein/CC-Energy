@@ -23,7 +23,7 @@ public partial interface IEnergyApi
     /// </summary>
     /// <param name="card">This card.</param>
     /// <param name="energyBlock">The base cost of the card.</param>
-    void SetModdedEnergyCostBase(Card card, Dictionary<Energy, int> energyBlock);
+    void SetModdedEnergyCostBase(Card card, IDictionary<Energy, int> energyBlock);
     /// <summary>
     /// Sets a cards base cost with a hook to dynamically change the cost (ex: upgrades).
     /// </summary>
@@ -35,14 +35,14 @@ public partial interface IEnergyApi
     /// </summary>
     /// <param name="card">The card.</param>
     /// <returns>A dictionary of the card's base modded energy cost.</returns>
-    Dictionary<Energy, int> GetModdedEnergyBaseCost(Card card, State s);
+    IDictionary<Energy, int> GetModdedEnergyBaseCost(Card card, State s);
     /// <summary>
     /// Gets a card's modded energy cost.
     /// </summary>
     /// <param name="card">The card.</param>
     /// <param name="s">The game state.</param>
     /// <returns>A dictionary of the card's modded energy cost.</returns>
-    Dictionary<Energy, int> GetModdedEnergyCost(Card card, State s);
+    IDictionary<Energy, int> GetModdedEnergyCost(Card card, State s);
     /// <summary>
     /// A hook related to a cards self-defined base cost.
     /// </summary>
@@ -53,7 +53,7 @@ public partial interface IEnergyApi
         /// </summary>
         /// <param name="s">The game state.</param>
         /// <returns>A dictionary of the card's base modded energy cost.</returns>
-        Dictionary<Energy, int> GetModdedEnergyCostBase(State s);
+        IDictionary<Energy, int> GetModdedEnergyCostBase(State s);
     }
     /// <summary>
     /// Adds to the discount of an energy type on a card.
@@ -67,13 +67,13 @@ public partial interface IEnergyApi
     /// </summary>
     /// <param name="card">The card to discount.</param>
     /// <param name="discountEnergyBlock">The discount to be set.</param>
-    void SetCardModdedEnergyDiscount(Card card, Dictionary<Energy, int> discountEnergyBlock);
+    void SetCardModdedEnergyDiscount(Card card, IDictionary<Energy, int> discountEnergyBlock);
     /// <summary>
     /// Gets a card's modded energy discounts.
     /// </summary>
     /// <param name="card"></param>
     /// <returns>A dictionary of each energy and the amount it's discounted.</returns>
-    Dictionary<Energy, int> GetCardModdedEnergyDiscounts(Card card);
+    IDictionary<Energy, int> GetCardModdedEnergyDiscounts(Card card);
     /// <summary>
     /// Registers a hook to override card's modded energy cost. 
     /// </summary>
@@ -96,7 +96,7 @@ public partial interface IEnergyApi
         /// <param name="s">The game state.</param>
         /// <param name="energyBlock">The card's cost with discounts.</param>
         /// <returns>A dictionary of the card's modded energy costs overridden.</returns>
-        Dictionary<Energy, int> GetModdedEnergyCostOveridden(Card card, State s, Dictionary<Energy, int> energyBlock);
+        IDictionary<Energy, int> GetModdedEnergyCostOveridden(Card card, State s, IDictionary<Energy, int> energyBlock);
     }
     /// <summary>
     /// The AModdedEnergy CardAction
@@ -118,11 +118,42 @@ public partial interface IEnergyApi
     /// </summary>
     /// <param name="c">The current combat.</param>
     /// <param name="energyBlock">The energy</param>
-    void SetCombatModdedEnergy(Combat c, Dictionary<Energy, int> energyBlock);
+    void SetCombatModdedEnergy(Combat c, IDictionary<Energy, int> energyBlock);
     /// <summary>
     /// Gets the current modded energy from this combat.
     /// </summary>
     /// <param name="c">The current combat.</param>
     /// <returns>A dictionary of the combat's current modded energy.</returns>
-    Dictionary<Energy, int> GetCombatModdedEnergy(Combat c);
+    IDictionary<Energy, int> GetCombatModdedEnergy(Combat c);
+    /// <summary>
+    /// Gets the energy types that are currently in use between the deck, hand, discard, and exhaust.
+    /// </summary>
+    /// <param name="c">The current combat.</param>
+    /// <param name="s">The game state.</param>
+    /// <returns>A List of energy types that are currently in use between the deck, hand, discard, and exhaust.</returns>
+    List<Energy> GetInUseEnergies(Combat c, State s);
+    /// <summary>
+    /// Registers a hook to override the modded turn energy. 
+    /// </summary>
+    /// <param name="hook">The hook.</param>
+    void RegisterModdedTurnEnergyOverrideHook(IModdedTurnEnergyOverrideHook hook);
+    /// <summary>
+    /// Unregisters a hook that overrides the modded turn energy. 
+    /// </summary>
+    /// <param name="hook">The hook.</param>
+    void UnregisterModdedTurnEnergyOverrideHook(IModdedTurnEnergyOverrideHook hook);
+    /// <summary>
+    /// A hook to override the modded turn energy.
+    /// </summary>
+    public interface IModdedTurnEnergyOverrideHook : IKokoroApi.IV2.IKokoroV2ApiHook
+    {
+        /// <summary>
+        /// Potentially overrides the modded turn energy.
+        /// </summary>
+        /// <param name="c">The current combat.</param>
+        /// <param name="s">The game state.</param>
+        /// <param name="energyBlock">The current energy for this turn.</param>
+        /// <returns>A dictionary of this turn's modded energy overridden.</returns>
+        IDictionary<Energy, int> GetModdedEnergyCostOveridden(Combat c, State s, IDictionary<Energy, int> energyBlock);
+    }
 }

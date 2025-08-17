@@ -51,6 +51,8 @@ internal class ModEntry : SimpleMod
     internal ISpriteEntry CardEnergyBGExtension { get; }
     internal ISpriteEntry CombatMiniEnergy { get; }
     internal ISpriteEntry GenericEnergyIcon { get; }
+    internal List<ISpriteEntry> EnergyLights { get; }
+    internal ISpriteEntry EnergyNumbers { get; }
 
     public ModEntry(IPluginPackage<IModManifest> package, IModHelper helper, ILogger logger) : base(package, helper, logger)
     {
@@ -71,6 +73,11 @@ internal class ModEntry : SimpleMod
         CardEnergyBGExtension = helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/Card/cardEnergyBG.png"));
         CombatMiniEnergy = helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/Combat/mini_energy.png"));
         GenericEnergyIcon = helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/icons/grayscale_energy.png"));
+        EnergyLights = [];
+        EnergyLights.Add(helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/Combat/energy_light_1.png")));
+        EnergyLights.Add(helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/Combat/energy_light_2.png")));
+        EnergyLights.Add(helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/Combat/energy_light_3.png")));
+        EnergyNumbers = helper.Content.Sprites.RegisterSprite(package.PackageRoot.GetRelativeFile("assets/numbers/energyNumebrs.png"));
 
         foreach (var type in AllRegisterableTypes)
             AccessTools.DeclaredMethod(type, nameof(IRegisterable.Register))?.Invoke(null, [package, helper]);

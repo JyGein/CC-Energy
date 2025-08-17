@@ -15,11 +15,11 @@
   "energy": {
     "Calm": {
       "name": "Calm Energy",
-      "description": "1 <c=4fe61e>CALM</c> <c=energy>ENERGY</c> for each quarter of your hull you have, up to 3."
+      "description": "1 <c=4fe61e>CALM</c> <c=energy>ENERGY</c> for each quarter of your hull you have."
     },
     "Revenge": {
       "name": "Revenge Energy",
-      "description": "1 <c=e61ec8>REVENGE</c> <c=energy>ENERGY</c> for each quarter of your hull you have missing."
+      "description": "1 <c=e61ec8>REVENGE</c> <c=energy>ENERGY</c> for each quarter of your hull you have missing. 4 instead if you have only 1 hull."
     },
     "Thermal": {
       "name": "Thermal Energy",

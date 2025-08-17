@@ -9,6 +9,7 @@ using CCEnergy.External;
 using FMOD;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static CCEnergy.IEnergyApi;
 
 namespace CCEnergy.Actions;
@@ -22,7 +23,7 @@ public class AModdedEnergy : CardAction, IAModdedEnergy
     
     public override void Begin(G g, State s, Combat c)
     {
-        Dictionary<Energy, int> energyBlock = ModEntry.EnergyApi.GetCombatModdedEnergy(c);
+        Dictionary<Energy, int> energyBlock = ModEntry.EnergyApi.GetCombatModdedEnergy(c).ToDictionary();
         energyBlock[energyToChange] += changeAmount;
         ModEntry.EnergyApi.SetCombatModdedEnergy(c, energyBlock);
         Audio.Play(new GUID?(this.changeAmount > 0 ? FSPRO.Event.Status_PowerUp : FSPRO.Event.Status_PowerDown));
