@@ -131,7 +131,7 @@ public partial interface IEnergyApi
     /// <param name="c">The current combat.</param>
     /// <param name="s">The game state.</param>
     /// <returns>A List of energy types that are currently in use between the deck, hand, discard, and exhaust.</returns>
-    List<Energy> GetInUseEnergies(Combat c, State s);
+    IList<Energy> GetInUseEnergies(Combat c, State s);
     /// <summary>
     /// Registers a hook to override the modded turn energy. 
     /// </summary>

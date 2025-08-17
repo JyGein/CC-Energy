@@ -342,7 +342,7 @@ internal sealed class Patches
         return true;
         int count = 0;
         Dictionary<Energy, int> energyBlock = __instance.GetEnergy();
-        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(__instance, g.state);
+        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(__instance, g.state).ToList();
         if (inUseEnergy.Count < 3) return true;
         Box box = g.Push(StableUK.combat_energy, new Rect(Mutil.AnimHelper(__instance.introTimer, -90.0, 0.0, 360.0, 0.35), w: 19.0, h: 19.0) + Combat.energyPos - new Vec(4, 12) + new Vec(21 * (count % 2), 21 * (count / 2)), gamepadUntargetable: true);
         Vec xy = box.rect.xy;
@@ -407,7 +407,7 @@ internal sealed class Patches
     {
         int count = 0;
         Dictionary<Energy, int> energyBlock = __instance.GetEnergy();
-        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(__instance, g.state);
+        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(__instance, g.state).ToList();
         // if (inUseEnergy.Count > 2) return;
         foreach (Energy energy in inUseEnergy)
         {
@@ -501,7 +501,7 @@ internal sealed class Patches
     {
         int count = 0;
         Dictionary<Energy, int> energyBlock = c.GetEnergy();
-        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(c, g.state);
+        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(c, g.state).ToList();
         // if (inUseEnergy.Count > 2) return;
         Box box = EnergyBox;
         foreach (Energy energy in inUseEnergy)
@@ -528,7 +528,7 @@ internal sealed class Patches
     {
         int count = 0;
         Dictionary<Energy, int> energyBlock = c.GetEnergy();
-        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(c, g.state);
+        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(c, g.state).ToList();
         // if (inUseEnergy.Count > 2) return;
         Box box = EnergyBox;
         foreach (Energy energy in inUseEnergy)

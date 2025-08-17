@@ -87,7 +87,7 @@ public class EnergyApi : IEnergyApi
         return c.GetEnergy();
     }
 
-    public List<Energy> GetInUseEnergies(Combat c, State s)
+    public IList<Energy> GetInUseEnergies(Combat c, State s)
     {
         List<Energy> inUseEnergy = [];
         foreach(Card card in s.deck.Concat(c.hand).Concat(c.discard).Concat(c.exhausted))
