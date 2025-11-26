@@ -1,0 +1,5 @@
+Kinetic Energy (orange): Equal to how much you moved last turn
+Charged Energy (cyan): Acts like normal energy with how it recharges, but starts at a max of 1 on turn one, and gains +1 max energy every turn up to a max of 6 (think P03 from Inscryption)
+Sacrifice Energy (red): Equal to the amount of cards left in your hand at the end of the previous turn
+Residual Energy (yellow): Equal to however much energy you didn't spend last turn
+Core Energy (deep purple or dark gray): Starts really high and lasts between turns, but never replenishes on its own

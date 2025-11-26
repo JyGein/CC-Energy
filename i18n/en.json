@@ -2,6 +2,10 @@
   "character": {
   },
   "status": {
+    "HyperFocus": {
+      "name": "CHARGED ENERGY CAPACITY",
+      "description": "Max <c=00eeee>Charged Energy</c> is raised by {0}."
+    }
   },
   "action": {
   },
@@ -13,17 +17,43 @@
   "artifact": {
   },
   "energy": {
-    "Calm": {
-      "name": "Calm Energy",
-      "description": "1 <c=4fe61e>CALM</c> <c=energy>ENERGY</c> for each quarter of your hull you have."
+    "Residual": {
+      "name": "Residual Energy",
+      "description": "Equal to the energy you ended your last turn with."
     },
     "Revenge": {
       "name": "Revenge Energy",
-      "description": "1 <c=e61ec8>REVENGE</c> <c=energy>ENERGY</c> for each quarter of your hull you have missing. 4 instead if you have only 1 hull."
+      "description": "1 <c={0}>REVENGE</c> <c=energy>ENERGY</c> for each quarter of your hull you have missing. 4 instead if you have only 1 hull."
     },
     "Thermal": {
       "name": "Thermal Energy",
-      "description": "1 <c=f5a449>THERMAL</c> <c=energy>ENERGY</c> for each heat you have."
+      "description": "Equal to the heat you have."
+    },
+    "Kinetic": {
+      "name": "Kinetic Energy",
+      "description": "Equal to how far you moved last turn."
+    },
+    "Charged": {
+      "name": "Charged Energy",
+      "description": "1 <c={0}>CHARGED</c> <c=energy>ENERGY</c> for each turn so far, up to 6."
+    },
+    "Sacrifice": {
+      "name": "Sacrifice Energy",
+      "description": "Equal to the number of cards in your hand last turn."
+    },
+    "Core": {
+      "name": "Core Energy",
+      "description": "10 <c={0}>CORE</c> <c=energy>ENERGY</c> on the first turn, otherwise equal to the <c={0}>CORE</c> <c=energy>ENERGY</c> you ended your last turn with."
     }
+  },
+  "resourceCost": {
+    "energy": {
+      "name": "{0} Energy Cost",
+      "description": "Lose <c=keyword>{0}</c> extra <c={1}>{2} ENERGY</c>. If you don't have enough, this action does not happen."
+    }
+  },
+  "moddedEnergyVariableHint": {
+    "stateful": "<c=action>X</c> = Your <c={{Color}}>{{Type}} ENERGY</c> after paying for this card (<c=keyword>{{Energy}}</c>).",
+    "stateless": "<c=action>X</c> = Your <c={{Color}}>{{Type}} ENERGY</c> after paying for this card."
   }
 }

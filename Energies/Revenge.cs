@@ -17,14 +17,14 @@ internal class RevengeEnergy : EnergyInfo
         if (state.ship.hull == 1) return 4;
         float healthPercent = (float)state.ship.hull / (float)state.ship.hullMax;
         return (int)((1f-healthPercent) / 0.25f);
-        if (healthPercent > 0.75) return 0;
-        if (healthPercent > 0.5) return 1;
-        if (healthPercent > 0.25) return 2;
-        return 3;
+        //if (healthPercent > 0.75) return 0;
+        //if (healthPercent > 0.5) return 1;
+        //if (healthPercent > 0.25) return 2;
+        //return 3;
     }
 
     public override Color GetColor()
     {
-        return new Color("e61ec8");
+        return new Color("c61cb2");
     }
 }

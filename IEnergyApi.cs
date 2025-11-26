@@ -1,9 +1,11 @@
 ﻿using CCEnergy.External;
+using Nickel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static CCEnergy.External.IKokoroApi.IV2;
 
 namespace CCEnergy;
 
@@ -15,8 +17,28 @@ public partial interface IEnergyApi
     public enum Energy
     {
         Revenge,
-        Calm,
-        Thermal
+        Residual,
+        Thermal,
+        Kinetic,
+        Core,
+        Sacrifice,
+        Charged
+    }
+    /// <summary>
+    /// Creates a modded energy resource for the given energy type.
+    /// </summary>
+    /// <param name="energy">The Energy.</param>
+    /// <returns>The new modded energy resource.</returns>
+    IModdedEnergyResource MakeModdedEnergyResource(Energy energy);
+    /// <summary>
+    /// Represents the modded energy resource that can be used in action costs.
+    /// </summary>
+    public interface IModdedEnergyResource : IKokoroApi.IV2.IActionCostsApi.IResource
+    {
+        /// <summary>
+        /// This resource's modded energy Type
+        /// </summary>
+        Energy EnergyType { get; }
     }
     /// <summary>
     /// Sets a cards base cost, ideally in the card's constructor.
@@ -46,7 +68,7 @@ public partial interface IEnergyApi
     /// <summary>
     /// A hook related to a cards self-defined base cost.
     /// </summary>
-    public interface ISetModdedEnergyCostBaseHook : IKokoroApi.IV2.IKokoroV2ApiHook
+    public interface ISetModdedEnergyCostBaseHook
     {
         /// <summary>
         /// Gets this card's base cost.
@@ -87,7 +109,7 @@ public partial interface IEnergyApi
     /// <summary>
     /// A hook to override a card's modded energy cost.
     /// </summary>
-    public interface IModdedEnergyCostOverrideHook : IKokoroApi.IV2.IKokoroV2ApiHook
+    public interface IModdedEnergyCostOverrideHook
     {
         /// <summary>
         /// Potentially overrides a card's cost.
@@ -99,9 +121,12 @@ public partial interface IEnergyApi
         IDictionary<Energy, int> GetModdedEnergyCostOveridden(Card card, State s, IDictionary<Energy, int> energyBlock);
     }
     /// <summary>
-    /// The AModdedEnergy CardAction
+    /// A new AModdedEnergy action.
     /// </summary>
     IAModdedEnergy AModdedEnergy { get; }
+    /// <summary>
+    /// The AModdedEnergy CardAction.
+    /// </summary>
     interface IAModdedEnergy : IKokoroApi.IV2.ICardAction<CardAction>
 	{
         /// <summary>
@@ -131,7 +156,14 @@ public partial interface IEnergyApi
     /// <param name="c">The current combat.</param>
     /// <param name="s">The game state.</param>
     /// <returns>A List of energy types that are currently in use between the deck, hand, discard, and exhaust.</returns>
-    IList<Energy> GetInUseEnergies(Combat c, State s);
+    IList<Energy> GetInUseEnergiesInCombat(State s, Combat c);
+    /// <summary>
+    /// Gets the energy types that are currently in use between the deck, hand, discard, and exhaust.
+    /// </summary>
+    /// <param name="c">The current combat.</param>
+    /// <param name="s">The game state.</param>
+    /// <returns>A List of energy types that are currently in use between the deck, hand, discard, and exhaust.</returns>
+    IList<Energy> GetInUseEnergiesOutOfCombat(State s);
     /// <summary>
     /// Registers a hook to override the modded turn energy. 
     /// </summary>
@@ -145,7 +177,7 @@ public partial interface IEnergyApi
     /// <summary>
     /// A hook to override the modded turn energy.
     /// </summary>
-    public interface IModdedTurnEnergyOverrideHook : IKokoroApi.IV2.IKokoroV2ApiHook
+    public interface IModdedTurnEnergyOverrideHook
     {
         /// <summary>
         /// Potentially overrides the modded turn energy.
@@ -155,5 +187,111 @@ public partial interface IEnergyApi
         /// <param name="energyBlock">The current energy for this turn.</param>
         /// <returns>A dictionary of this turn's modded energy overridden.</returns>
         IDictionary<Energy, int> GetModdedEnergyCostOveridden(Combat c, State s, IDictionary<Energy, int> energyBlock);
+    }
+    /// <summary>
+    /// Gets the Charged Energy Api
+    /// </summary>
+    /// <returns>The Charged Energy Api</returns>
+    public IChargedEnergyApi ChargedEnergyApi { get; }
+    /// <summary>
+    /// Holds hooks specific to Charged Energy
+    /// </summary>
+    public interface IChargedEnergyApi
+    {
+        /// <summary>
+        /// Registers a hook to override the maximum amount of Charged Energy gained per turn.
+        /// </summary>
+        /// <param name="hook"></param>
+        void RegisterChargedEnergyMaximumOverrideHook(IChargedEnergyMaximumOverrideHook hook);
+        /// <summary>
+        /// Unregisters a hook to override the maximum amount of Charged Energy gained per turn.
+        /// </summary>
+        /// <param name="hook"></param>
+        void UnRegisterChargedEnergyMaximumOverrideHook(IChargedEnergyMaximumOverrideHook hook);
+        /// <summary>
+        /// A hook to override the maximum amount of Charged Energy gained per turn.
+        /// </summary>
+        public interface IChargedEnergyMaximumOverrideHook
+        {
+            /// <summary>
+            /// Potentially overrides the maximum amount of Charged Energy gained per turn.
+            /// </summary>
+            /// <param name="c"></param>
+            /// <param name="s"></param>
+            /// <param name="energyBlock"></param>
+            /// <returns></returns>
+            int GetChargedEnergyMaximumOverridden(Combat c, State s, int currentMaximum);
+        }
+        /// <summary>
+        /// A status that increases your max Charged energy per turn, 1 for each stack.
+        /// </summary>
+        public IStatusEntry MaxChargedEnergy { get; }
+    }
+    /// <inheritdoc cref="IModdedEnergyAsStatusApi"/>
+    IModdedEnergyAsStatusApi ModdedEnergyAsStatus { get; }
+
+    /// <summary>
+    /// Allows treating <see cref="Energy"/> as if it was a status for <see cref="AStatus"/> and <see cref="AVariableHint"/>.
+    /// </summary>
+    public interface IModdedEnergyAsStatusApi
+    {
+        /// <summary>
+        /// Casts the action to <see cref="IVariableHint"/>, if it is one.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        /// <returns>The <see cref="IVariableHint"/>, if the given action is one, or <c>null</c> otherwise.</returns>
+        IVariableHint? AsVariableHint(AVariableHint action);
+
+        /// <summary>
+        /// Creates a new variable hint action for the current amount of energy.
+        /// </summary>
+        /// <param name="tooltipOverride">An override value for the current amount of energy, used in tooltips. See <see cref="IVariableHint.TooltipOverride"/>.</param>
+        /// <returns>The new variable hint action.</returns>
+        IVariableHint MakeVariableHint(Energy energy, int? tooltipOverride = null);
+
+        /// <summary>
+        /// Casts the action to <see cref="IStatusAction"/>, if it is one.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        /// <returns>The <see cref="IStatusAction"/>, if the given action is one, or <c>null</c> otherwise.</returns>
+        IStatusAction? AsStatusAction(AStatus action);
+
+        /// <summary>
+        /// Creates a new <see cref="AStatus"/> action that changes the current amount of energy.
+        /// </summary>
+        /// <param name="amount">A modifier amount. See <see cref="AStatus.statusAmount"/>.</param>
+        /// <param name="mode">A modifier mode. See <see cref="AStatus.mode"/>.</param>
+        /// <returns></returns>
+        IStatusAction MakeStatusAction(Energy energy, int amount, AStatusMode mode = AStatusMode.Add);
+
+        /// <summary>
+        /// A variable hint action for the current amount of energy.
+        /// </summary>
+        public interface IVariableHint : ICardAction<AVariableHint>
+        {
+            /// <summary>
+            /// The type of energy.
+            /// </summary>
+            Energy EnergyType { get; set; }
+            /// <summary>
+            /// An override value for the current amount of energy, used in tooltips.
+            /// </summary>
+            /// <remarks>
+            /// This can be used to correct the amount of energy if a card does not cost 0, or otherwise changes the amount of energy between its actions.
+            /// </remarks>
+            int? TooltipOverride { get; set; }
+
+            /// <summary>
+            /// Sets <see cref="TooltipOverride"/>.
+            /// </summary>
+            /// <param name="value">The new value.</param>
+            /// <returns>This object after the change.</returns>
+            IVariableHint SetTooltipOverride(int? value);
+        }
+
+        /// <summary>
+        /// An <see cref="AStatus"/> wrapper action that changes the current amount of energy.
+        /// </summary>
+        public interface IStatusAction : ICardAction<AStatus>;
     }
 }

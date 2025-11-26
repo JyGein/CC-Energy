@@ -1,6 +1,6 @@
 {
   "UniqueName": "JyGein.Energy",
-  "Version": "0.1.0",
+  "Version": "{{ModVersion}}",
   "Author": "JyGein",
   "Description": "Adds new types of energy to the game.",
   "RequiredApiVersion": "1.5.7",

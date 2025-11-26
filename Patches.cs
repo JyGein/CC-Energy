@@ -130,8 +130,9 @@ internal sealed class Patches
         {
             if (moddedEnergyCardCost.TryGetValue(energy, out int cost) && cost > 0)
             {
+                if (count == 0) Draw.Sprite(ModEntry.Instance.CardEnergyBGExtension.Sprite, v.x + 0.0 + 11.0, v.y + 16.0, color: DB.decks[card.GetMeta().deck].color);
                 count++;
-                Draw.Sprite(ModEntry.Instance.CardEnergyBGExtension.Sprite, v.x + 0.0 + (11.0 * count), v.y + 16.0, color: ModEntry.Energies[(int)energy].GetColor());
+                Draw.Sprite(ModEntry.Instance.CardModdedEnergyBG.Sprite, v.x + 1.0 + (11.0 * count), v.y + 16.0, color: ModEntry.Energies[(int)energy].GetColor());
             }
         }
     }
@@ -145,8 +146,8 @@ internal sealed class Patches
             if (moddedEnergyCardCost.TryGetValue(energy, out int cost) && cost > 0)
             {
                 count++;
-                bool flag1 = !(state.route is Combat c) || c.energy >= cost;
-                BigNumbers.Render(cost, v.x + 3.0 + (11.0 * count), v.y + 18.0, flag1 ? Color.Lerp(ModEntry.Energies[(int)energy].GetColor(), Colors.white, 0.6) : Color.Lerp(Colors.textMain.fadeAlpha(0.55), Colors.redd, card.shakeNoAnim));
+                bool flag1 = !(state.route is Combat c) || ModEntry.EnergyApi.GetCombatModdedEnergy(c)[energy] >= cost;
+                BigNumbers.Render(cost, v.x + 4.0 + (11.0 * count), v.y + 18.0, flag1 ? Color.Lerp(ModEntry.Energies[(int)energy].GetColor(), Colors.white, 0.6) : Color.Lerp(Colors.textMain.fadeAlpha(0.55), Colors.redd, card.shakeNoAnim));
                 //ADD UNPLAYABLE ICON OVER THE NUMBER IF UNPLAYABLE
             }
         }
@@ -337,77 +338,21 @@ internal sealed class Patches
         }
         return true;
     }
-    private static bool Combat_RenderEnergy_Prefix(Combat __instance, G g)
-    {
-        return true;
-        int count = 0;
-        Dictionary<Energy, int> energyBlock = __instance.GetEnergy();
-        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(__instance, g.state).ToList();
-        if (inUseEnergy.Count < 3) return true;
-        Box box = g.Push(StableUK.combat_energy, new Rect(Mutil.AnimHelper(__instance.introTimer, -90.0, 0.0, 360.0, 0.35), w: 19.0, h: 19.0) + Combat.energyPos - new Vec(4, 12) + new Vec(21 * (count % 2), 21 * (count / 2)), gamepadUntargetable: true);
-        Vec xy = box.rect.xy;
-        if (box.IsHover())
-            g.tooltips.AddGlossary(xy + new Vec(21.0), "combat.energyCounter");
-        Color energyColor = Colors.textMain;
-        Draw.Sprite(ModEntry.Instance.CombatMiniEnergy.Sprite, xy.x - 1.0, xy.y - 1.0, color: energyColor);
-        Color textColor = __instance.energy > 0 ? energyColor : Colors.redd;
-        double pulse = Mutil.GetPulse(g.state.time, __instance.pulseEnergyBad, 0.5) / 2;
-        if (__instance.pulseEnergyBad > 0.0)
-            textColor = Color.Lerp(textColor, Colors.pulseEnergyBadText, __instance.pulseEnergyBad / 0.5);
-        if (__instance.pulseEnergyGood > 0.0)
-            textColor = Color.Lerp(textColor, Colors.pulseEnergyGoodText, __instance.pulseEnergyGood / 0.5);
-        Color glowColor = __instance.pulseEnergyGood > __instance.pulseEnergyBad ? Colors.pulseEnergyGoodGlow : Colors.pulseEnergyBadGlow;
-        Glow.Draw(xy + new Vec(10.0, 10.0), 50.0, glowColor.gain(Math.Max(__instance.pulseEnergyGood, __instance.pulseEnergyBad) / 0.5));
-        string str = DB.IntStringCache(__instance.energy);
-        double x = xy.x + 9.0 + pulse;
-        double y = xy.y + 5.0;
-        Draw.Text(str, x, y, DB.thicket, textColor, align: daisyowl.text.TAlign.Center, dontSubstituteLocFont: true);
-        g.Pop();
-        count++;
-        foreach (Energy energy in inUseEnergy)
-        {
-            EnergyInfo energyInfo = ModEntry.Energies[(int)energy];
-            Box box1 = g.Push((UIKey)energyInfo.GetUK(), new Rect(Mutil.AnimHelper(__instance.introTimer, -90.0, 0.0, 360.0, 0.35), w: 19.0, h: 19.0) + Combat.energyPos - new Vec(4, 12) + new Vec(21 * (count % 2), 21 * (count / 2)), gamepadUntargetable: true);
-            Vec xy1 = box1.rect.xy;
-            if (box1.IsHover()) g.tooltips.Add(xy1 + new Vec(21.0),
-                new GlossaryTooltip($"{energy}ENERGY")
-                {
-                    Icon = ModEntry.Instance.GenericEnergyIcon.Sprite,
-                    IconColor = energyInfo.GetColor(),
-                    Title = ModEntry.Instance.Localizations.Localize(["energy", energy.ToString(), "name"]),
-                    TitleColor = energyInfo.GetColor(),
-                    Description = ModEntry.Instance.Localizations.Localize(["energy", energy.ToString(), "description"])
-                });
-            Color energyColor1 = energyInfo.GetColor();
-            Draw.Sprite(ModEntry.Instance.CombatMiniEnergy.Sprite, xy1.x - 1.0, xy1.y - 1.0, color: energyColor1);
-            Color textColor1 = energyBlock[energy] > 0 ? energyColor1 : Colors.redd;
-            double pulse1 = Mutil.GetPulse(g.state.time, __instance.pulseEnergyBad, 0.5) / 2;
-            if (__instance.pulseEnergyBad > 0.0)
-                textColor1 = Color.Lerp(textColor1, Colors.pulseEnergyBadText, __instance.pulseEnergyBad / 0.5);
-            if (__instance.pulseEnergyGood > 0.0)
-                textColor1 = Color.Lerp(textColor1, Colors.pulseEnergyGoodText, __instance.pulseEnergyGood / 0.5);
-            Color glowColor1 = __instance.pulseEnergyGood > __instance.pulseEnergyBad ? Colors.pulseEnergyGoodGlow : Colors.pulseEnergyBadGlow;
-            Glow.Draw(xy1 + new Vec(10.0, 10.0), 50.0, glowColor1.gain(Math.Max(__instance.pulseEnergyGood, __instance.pulseEnergyBad) / 0.5));
-            string str1 = DB.IntStringCache(energyBlock[energy]);
-            double x1 = xy1.x + 9.0 + pulse1;
-            double y1 = xy1.y + 5.0;
-            Draw.Text(str1, x1, y1, DB.thicket, textColor1, align: daisyowl.text.TAlign.Center, dontSubstituteLocFont: true);
-            g.Pop();
-            count++;
-        }
-        return false;
-    }
 
     static readonly List<(Vec, double)> NumberPositions = [
         (new (0, -5), -7),
-        (new (13, -8), -3),
+        (new (13, -8), -4),
         (new (26, -5), 0),
+        (new (0, 31), -7),
+        (new (13, 34), -4),
+        (new (26, 31), 0),
+        (new (34, 13), 0)
         ];
     private static void Combat_RenderEnergy_Postfix(Combat __instance, G g)
     {
         int count = 0;
         Dictionary<Energy, int> energyBlock = __instance.GetEnergy();
-        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(__instance, g.state).ToList();
+        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergiesInCombat(g.state, __instance).ToList();
         // if (inUseEnergy.Count > 2) return;
         foreach (Energy energy in inUseEnergy)
         {
@@ -421,7 +366,7 @@ internal sealed class Patches
                     IconColor = energyInfo.GetColor(),
                     Title = ModEntry.Instance.Localizations.Localize(["energy", energy.ToString(), "name"]),
                     TitleColor = energyInfo.GetColor(),
-                    Description = ModEntry.Instance.Localizations.Localize(["energy", energy.ToString(), "description"])
+                    Description = string.Format(ModEntry.Instance.Localizations.Localize(["energy", energy.ToString(), "description"]), energyInfo.GetColor())
             });
             Color energyColor = energyInfo.GetColor();
             Draw.Sprite(ModEntry.Instance.EnergyLights[count].Sprite, xy.x - 1.0, xy.y - 1.0, color: energyColor);
@@ -501,7 +446,7 @@ internal sealed class Patches
     {
         int count = 0;
         Dictionary<Energy, int> energyBlock = c.GetEnergy();
-        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(c, g.state).ToList();
+        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergiesInCombat(g.state, c).ToList();
         // if (inUseEnergy.Count > 2) return;
         Box box = EnergyBox;
         foreach (Energy energy in inUseEnergy)
@@ -516,7 +461,7 @@ internal sealed class Patches
                     IconColor = energyInfo.GetColor(),
                     Title = ModEntry.Instance.Localizations.Localize(["energy", energy.ToString(), "name"]),
                     TitleColor = energyInfo.GetColor(),
-                    Description = ModEntry.Instance.Localizations.Localize(["energy", energy.ToString(), "description"])
+                    Description = string.Format(ModEntry.Instance.Localizations.Localize(["energy", energy.ToString(), "description"]), energyInfo.GetColor())
                 }
             ]);
             Color energyColor = energyInfo.GetColor();
@@ -528,7 +473,7 @@ internal sealed class Patches
     {
         int count = 0;
         Dictionary<Energy, int> energyBlock = c.GetEnergy();
-        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergies(c, g.state).ToList();
+        List<Energy> inUseEnergy = ModEntry.EnergyApi.GetInUseEnergiesInCombat(g.state, c).ToList();
         // if (inUseEnergy.Count > 2) return;
         Box box = EnergyBox;
         foreach (Energy energy in inUseEnergy)

@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<RootNamespace>CCEnergy</RootNamespace>
-		<Version>0.1.0</Version>
+		<Version>1.1.0</Version>
 		<IncludedModProjectPaths>i18n;assets</IncludedModProjectPaths>
-
+		<IsNickelMod>True</IsNickelMod>
 		<TargetFramework>net8.0</TargetFramework>
 		<LangVersion>12.0</LangVersion>
 		<ImplicitUsings>disable</ImplicitUsings>

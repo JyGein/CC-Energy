@@ -38,9 +38,13 @@ internal sealed class TestCard : Card, IRegisterable, ISetModdedEnergyCostBaseHo
     {
         return new Dictionary<Energy, int>()
         {
-            { Energy.Revenge, upgrade == Upgrade.None ? 1 : 0 },
-            { Energy.Calm, upgrade == Upgrade.A ? 1 : 0 },
-            { Energy.Thermal, upgrade == Upgrade.B ? 1 : 0 }
+            //{ Energy.Kinetic, upgrade == Upgrade.None ? 1 : 0 },
+            { Energy.Charged, upgrade == Upgrade.A ? 1 : 0 },
+            { Energy.Sacrifice, upgrade == Upgrade.B ? 1 : 0 },
+            //{ Energy.Core, upgrade == Upgrade.B ? 1 : 0 },
+            { Energy.Thermal, upgrade == Upgrade.None ? 1 : 0 },
+            //{ Energy.Residual, upgrade == Upgrade.A ? 1 : 0 },
+            //{ Energy.Revenge, upgrade == Upgrade.B ? 1 : 0 },
         };
     }
 
@@ -54,15 +58,17 @@ internal sealed class TestCard : Card, IRegisterable, ISetModdedEnergyCostBaseHo
         return data;
     }
 
+    public static int GetX(State s, Combat c)
+    {
+        return c.GetEnergy().GetValueOrDefault(Energy.Thermal, 0);
+    }
+
     public override List<CardAction> GetActions(State s, Combat c)
     {
-        List<CardAction> actions =
-        [
-            new ADrawCard()
-            {
-                count = 1
-            },
-        ];
+        List<CardAction> actions = [];
+        int amt = GetX(s, c);
+
+        actions.Add(ModEntry.Instance.KokoroApi.ActionCosts.MakeCostAction(ModEntry.Instance.KokoroApi.ActionCosts.MakeResourceCost(ModEntry.EnergyApi.MakeModdedEnergyResource(Energy.Charged), 2), new AAttack { damage = 1 }).AsCardAction);
         return actions;
     }
 }
