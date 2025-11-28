@@ -24,13 +24,11 @@ public class EnergyApi : IEnergyApi
     readonly Dictionary<Card, ISetModdedEnergyCostBaseHook> ModdedEnergyBaseCostHooks = [];
     readonly List<IModdedEnergyCostOverrideHook> ModdedEnergyCostOverrideHooks = [];
     readonly List<IModdedTurnEnergyOverrideHook> ModdedTurnEnergyOverrideHooks = [];
+    readonly List<IInUseEnergyHook> InUseEnergyHooks = [];
     public readonly ChargedEnergyApi chargedEnergyApi = new();
     public readonly ModdedEnergyAsStatusApi moddedEnergyAsStatusApi = new();
 
-    public IModdedEnergyResource MakeModdedEnergyResource(Energy energy)
-        => new ModdedEnergyResource() { EnergyType = energy };
-
-    public sealed class ModdedEnergyResource : IModdedEnergyResource
+    public sealed class ModdedEnergyResource : IResource
     {
         public Energy EnergyType { get; init; }
 
@@ -172,10 +170,15 @@ public class EnergyApi : IEnergyApi
                 if (costAction != null)
                 {
                     IResourceCost? resourceCost = ModEntry.Instance.KokoroApi.ActionCosts.AsResourceCost(costAction.Cost);
-                    if (resourceCost != null) foreach (IResource resource in resourceCost.PotentialResources) if (resource is IModdedEnergyResource moddedEnergyResource && !inUseEnergy.Contains(moddedEnergyResource.EnergyType)) inUseEnergy.Add(moddedEnergyResource.EnergyType);
+                    if (resourceCost != null) foreach (IResource resource in resourceCost.PotentialResources) if (resource is ModdedEnergyResource moddedEnergyResource && !inUseEnergy.Contains(moddedEnergyResource.EnergyType)) inUseEnergy.Add(moddedEnergyResource.EnergyType);
                 }
             }
         }
+        foreach (IInUseEnergyHook hook in InUseEnergyHooks)
+        {
+            inUseEnergy = [.. inUseEnergy, .. hook.MoreEnergiesInUse(s, c)];
+        }
+        inUseEnergy = [.. inUseEnergy.Distinct()];
         inUseEnergy.Sort();
         return inUseEnergy;
     }
@@ -198,10 +201,15 @@ public class EnergyApi : IEnergyApi
                 if (costAction != null)
                 {
                     IResourceCost? resourceCost = ModEntry.Instance.KokoroApi.ActionCosts.AsResourceCost(costAction.Cost);
-                    if (resourceCost != null) foreach (IResource resource in resourceCost.PotentialResources) if (resource is IModdedEnergyResource moddedEnergyResource && !inUseEnergy.Contains(moddedEnergyResource.EnergyType)) inUseEnergy.Add(moddedEnergyResource.EnergyType);
+                    if (resourceCost != null) foreach (IResource resource in resourceCost.PotentialResources) if (resource is ModdedEnergyResource moddedEnergyResource && !inUseEnergy.Contains(moddedEnergyResource.EnergyType)) inUseEnergy.Add(moddedEnergyResource.EnergyType);
                 }
             }
         }
+        foreach (IInUseEnergyHook hook in InUseEnergyHooks)
+        {
+            inUseEnergy = [.. inUseEnergy, .. hook.MoreEnergiesInUseOutOfCombat(s)];
+        }
+        inUseEnergy = [.. inUseEnergy.Distinct()];
         inUseEnergy.Sort();
         return inUseEnergy;
     }
@@ -400,6 +408,52 @@ public class EnergyApi : IEnergyApi
                 return false;
             }
         }
+    }
+
+    public IEnergyInfoApi GetEnergyInfo(Energy energy)
+    {
+        return ModEntry.Energies[(int)energy];
+    }
+
+    public IModdedEnergyTooltipInfo ModdedEnergyTooltipInfo => new ModdedEnergyTooltipInfoApi();
+
+    public sealed class ModdedEnergyTooltipInfoApi : IModdedEnergyTooltipInfo
+    {
+        public string ResourceCostDescription(Energy energy, int amount)
+        {
+            EnergyInfo energyInfo = ModEntry.Energies[(int)energy];
+            string descriptionFormat = ModEntry.Instance.Localizations.Localize(["resourceCost", "energy", "description"]);
+            string description = string.Format(descriptionFormat, amount, energyInfo.GetColor(), energy.ToString().ToUpper());
+            return description;
+        }
+
+        public string ResourceCostName(Energy energy)
+        {
+            EnergyInfo energyInfo = ModEntry.Energies[(int)energy];
+            string nameFormat = ModEntry.Instance.Localizations.Localize(["resourceCost", "energy", "name"]);
+            string name = string.Format(nameFormat, energy.ToString().ToUpper());
+            return name;
+        }
+
+        public Spr ResourceCostSatisfiedIcon(Energy energy, int amount)
+        {
+            return ModEntry.Instance.KokoroApi.ActionCosts.GetResourceCostIcons(new ModdedEnergyResource { EnergyType = energy }, amount)[0].CostSatisfiedIcon;
+        }
+
+        public Spr ResourceCostUnsatisfiedIcon(Energy energy, int amount)
+        {
+            return ModEntry.Instance.KokoroApi.ActionCosts.GetResourceCostIcons(new ModdedEnergyResource { EnergyType = energy }, amount)[0].CostUnsatisfiedIcon;
+        }
+    }
+
+    public void RegisterInUseEnergyHook(IInUseEnergyHook hook)
+    {
+        InUseEnergyHooks.Add(hook);
+    }
+
+    public void UnregisterInUseEnergyHook(IInUseEnergyHook hook)
+    {
+        InUseEnergyHooks.Remove(hook);
     }
 }
 

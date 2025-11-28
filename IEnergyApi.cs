@@ -25,22 +25,6 @@ public partial interface IEnergyApi
         Charged
     }
     /// <summary>
-    /// Creates a modded energy resource for the given energy type.
-    /// </summary>
-    /// <param name="energy">The Energy.</param>
-    /// <returns>The new modded energy resource.</returns>
-    IModdedEnergyResource MakeModdedEnergyResource(Energy energy);
-    /// <summary>
-    /// Represents the modded energy resource that can be used in action costs.
-    /// </summary>
-    public interface IModdedEnergyResource : IKokoroApi.IV2.IActionCostsApi.IResource
-    {
-        /// <summary>
-        /// This resource's modded energy Type
-        /// </summary>
-        Energy EnergyType { get; }
-    }
-    /// <summary>
     /// Sets a cards base cost, ideally in the card's constructor.
     /// </summary>
     /// <param name="card">This card.</param>
@@ -293,5 +277,41 @@ public partial interface IEnergyApi
         /// An <see cref="AStatus"/> wrapper action that changes the current amount of energy.
         /// </summary>
         public interface IStatusAction : ICardAction<AStatus>;
+    }
+
+    /// <inheritdoc cref="IEnergyInfoApi"/>
+    IEnergyInfoApi GetEnergyInfo(Energy energy);
+
+    /// <summary>
+    /// An <see cref="Energy"/>'s information.
+    /// </summary>
+    public interface IEnergyInfoApi
+    {
+        UK GetUK();
+        int GetTurnEnergy(State state, Combat c);
+        Color GetColor();
+        void DoPatches();
+    }
+
+    /// <inheritdoc cref="IModdedEnergyTooltipInfo"/>
+    IModdedEnergyTooltipInfo ModdedEnergyTooltipInfo { get; }
+
+    /// <summary>
+    /// Useful localizations for tooltips.
+    /// </summary>
+    public interface IModdedEnergyTooltipInfo
+    {
+        string ResourceCostName(Energy energy);
+        string ResourceCostDescription(Energy energy, int amount);
+        Spr ResourceCostSatisfiedIcon(Energy energy, int amount);
+        Spr ResourceCostUnsatisfiedIcon(Energy energy, int amount);
+    }
+
+    void RegisterInUseEnergyHook(IInUseEnergyHook hook);
+    void UnregisterInUseEnergyHook(IInUseEnergyHook hook);
+    public interface IInUseEnergyHook
+    {
+        IReadOnlyList<Energy> MoreEnergiesInUse(State s, Combat c);
+        IReadOnlyList<Energy> MoreEnergiesInUseOutOfCombat(State s);
     }
 }

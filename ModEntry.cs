@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Resources;
 using static CCEnergy.EnergyApi;
 using static CCEnergy.IEnergyApi;
 using MGColor = Microsoft.Xna.Framework.Color;
@@ -108,10 +109,10 @@ internal class ModEntry : SimpleMod
         });
         foreach (Energy energy in Enum.GetValues(typeof(Energy)))
         {
-            IModdedEnergyResource moddedEnergyResource = new ModdedEnergyResource { EnergyType = energy };
-            EnergyInfo energyInfo = ModEntry.Energies[(int)moddedEnergyResource.EnergyType];
+            IKokoroApi.IV2.IActionCostsApi.IResource moddedEnergyResource = new ModdedEnergyResource { EnergyType = energy };
+            EnergyInfo energyInfo = ModEntry.Energies[(int)energy];
             Color color = energyInfo.GetColor();
-            Spr SatifiedIcon = helper.Content.Sprites.RegisterSprite(() =>
+            Spr Satisfied = helper.Content.Sprites.RegisterSprite(() =>
             {
                 Texture2D moddedEnergyCostSatisfiedTexture = SpriteLoader.Get(ModdedEnergyCostSatisfied.Sprite)!;
                 MGColor[] data = new MGColor[moddedEnergyCostSatisfiedTexture.Width * moddedEnergyCostSatisfiedTexture.Height];
@@ -129,7 +130,7 @@ internal class ModEntry : SimpleMod
                 texture.SetData(data);
                 return texture;
             }).Sprite;
-            KokoroApi.ActionCosts.RegisterResourceCostIcon(moddedEnergyResource, SatifiedIcon, ModdedEnergyCostUnsatisfied.Sprite);
+            KokoroApi.ActionCosts.RegisterResourceCostIcon(moddedEnergyResource, Satisfied, ModdedEnergyCostUnsatisfied.Sprite);
             EnergyIcons[energy] = helper.Content.Sprites.RegisterSprite(() =>
             {
                 Texture2D moddedEnergyIcon = SpriteLoader.Get(GenericEnergyIcon.Sprite)!;

@@ -68,7 +68,7 @@ internal sealed class TestCard : Card, IRegisterable, ISetModdedEnergyCostBaseHo
         List<CardAction> actions = [];
         int amt = GetX(s, c);
 
-        actions.Add(ModEntry.Instance.KokoroApi.ActionCosts.MakeCostAction(ModEntry.Instance.KokoroApi.ActionCosts.MakeResourceCost(ModEntry.EnergyApi.MakeModdedEnergyResource(Energy.Charged), 2), new AAttack { damage = 1 }).AsCardAction);
+        actions.Add(ModEntry.Instance.KokoroApi.ActionCosts.MakeCostAction(ModEntry.Instance.KokoroApi.ActionCosts.MakeResourceCost(new EnergyApi.ModdedEnergyResource { EnergyType = Energy.Charged }, 2), new AAttack { damage = 1 }).AsCardAction);
         return actions;
     }
 }

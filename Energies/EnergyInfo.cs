@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CCEnergy.Energies;
 
-internal abstract class EnergyInfo
+internal abstract class EnergyInfo : IEnergyApi.IEnergyInfoApi
 {
     public abstract UK GetUK();
     public abstract int GetTurnEnergy(State state, Combat c);
